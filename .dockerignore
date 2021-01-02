@@ -1,0 +1,7 @@
+.DS_Store
+Dockerfile
+docker-compose.yml
+.gitignore
+.git/
+.vscode/
+bin/
