@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 	"path"
 
 	"github.com/mingslife/mtlmeta/conf"
@@ -52,7 +53,9 @@ func main() {
 		}
 
 		if c.Directory != "" {
-			outputPath := path.Join(c.Directory, mtlPath)
+			os.Mkdir(c.Directory, os.ModePerm)
+			_, filename := path.Split(mtlPath)
+			outputPath := path.Join(c.Directory, filename)
 			mtlFile.Save(outputPath)
 			fmt.Printf("New MTL path: %s\n", outputPath)
 		}
