@@ -186,6 +186,11 @@ func main() {
 
 				fmt.Print("collect sucessfully: " + row)
 				tempData = append(tempData, []byte(row)...)
+			} else if materialName != "" {
+				row := fmt.Sprintf("%s,%s,%s\n", materialName, "", materialName)
+
+				fmt.Print("collect empty record: " + row)
+				tempData = append(tempData, []byte(row)...)
 			} else {
 				fmt.Println("collect failed for file: " + filePath)
 			}
