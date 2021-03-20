@@ -214,7 +214,10 @@ func main() {
 			}
 
 			if translation, ok := dictionary[materialName]; ok {
-				newMaterialName := fmt.Sprintf("%s %s", translation, materialName)
+				newMaterialName := materialName
+				if translation != "" {
+					newMaterialName = fmt.Sprintf("%s %s", translation, materialName)
+				}
 
 				newBytes := bytes[0:start:start]
 				if hasQuote {
