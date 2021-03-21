@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/csv"
+	"encoding/hex"
 	"flag"
 	"fmt"
 	"io"
@@ -9,6 +10,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"runtime"
 	"strings"
 )
 
@@ -93,6 +95,8 @@ func loadDictionary(dictionaryPath string) map[string]string {
 }
 
 func main() {
+	sysType := runtime.GOOS
+
 	c := parseConfig()
 
 	dictionary := loadDictionary(c.Dictionary)
@@ -153,6 +157,11 @@ func main() {
 		}
 
 		materialName := string(bytes[start:end])
+		if materialName[0:2] == "xX" {
+			if bs, err := hex.DecodeString(materialName[2:]); err == nil {
+				materialName = string(bs)
+			}
+		}
 		fmt.Println("Material name: " + materialName)
 
 		if c.Collect {
@@ -205,11 +214,20 @@ func main() {
 					outputDir := "out"
 					os.Mkdir(outputDir, os.ModePerm)
 					outputFilePath = path.Join(outputDir, fileName)
+					if sysType == "windows" {
+						outputFilePath = strings.ReplaceAll(outputFilePath, "/", "\\")
+					}
 				}
 			} else {
 				fileName := strings.ReplaceAll(path.Clean(filePath), "..", "")
 				outputFilePath = path.Join(outputFilePath, fileName)
+				if sysType == "windows" {
+					outputFilePath = strings.ReplaceAll(outputFilePath, "/", "\\")
+				}
 				outputDir := path.Dir(outputFilePath)
+				if sysType == "windows" {
+					outputDir = strings.ReplaceAll(outputDir, "/", "\\")
+				}
 				os.MkdirAll(outputDir, os.ModePerm)
 			}
 
