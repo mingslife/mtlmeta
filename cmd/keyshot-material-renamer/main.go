@@ -96,6 +96,7 @@ func loadDictionary(dictionaryPath string) map[string]string {
 
 func main() {
 	sysType := runtime.GOOS
+	fmt.Printf("OS: %s\n", sysType)
 
 	c := parseConfig()
 
@@ -204,6 +205,9 @@ func main() {
 				fmt.Println("collect failed for file: " + filePath)
 			}
 		} else if c.Rename {
+			if sysType == "windows" {
+				filePath = strings.ReplaceAll(filePath, "/", "\\")
+			}
 			fmt.Println("rename for: " + filePath)
 
 			// get output file path
