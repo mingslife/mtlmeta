@@ -10,7 +10,6 @@ import (
 	"log"
 	"os"
 	"path"
-	"runtime"
 	"strings"
 )
 
@@ -95,9 +94,6 @@ func loadDictionary(dictionaryPath string) map[string]string {
 }
 
 func main() {
-	sysType := runtime.GOOS
-	fmt.Printf("OS: %s\n", sysType)
-
 	c := parseConfig()
 
 	dictionary := loadDictionary(c.Dictionary)
@@ -205,9 +201,6 @@ func main() {
 				fmt.Println("collect failed for file: " + filePath)
 			}
 		} else if c.Rename {
-			if sysType == "windows" {
-				filePath = strings.ReplaceAll(filePath, "/", "\\")
-			}
 			fmt.Println("rename for: " + filePath)
 
 			// get output file path
@@ -218,21 +211,14 @@ func main() {
 					outputDir := "out"
 					os.Mkdir(outputDir, os.ModePerm)
 					outputFilePath = path.Join(outputDir, fileName)
-					if sysType == "windows" {
-						outputFilePath = strings.ReplaceAll(outputFilePath, "/", "\\")
-					}
 				}
 			} else {
 				fileName := strings.ReplaceAll(path.Clean(filePath), "..", "")
 				outputFilePath = path.Join(outputFilePath, fileName)
-				if sysType == "windows" {
-					outputFilePath = strings.ReplaceAll(outputFilePath, "/", "\\")
-				}
 				outputDir := path.Dir(outputFilePath)
-				if sysType == "windows" {
-					outputDir = strings.ReplaceAll(outputDir, "/", "\\")
+				if err = os.MkdirAll(outputDir, os.ModePerm); err != nil {
+					log.Fatalf("generate directory failed: %s\n", err.Error())
 				}
-				os.MkdirAll(outputDir, os.ModePerm)
 			}
 
 			if translation, ok := dictionary[materialName]; ok {
@@ -249,7 +235,9 @@ func main() {
 				}
 				newBytes = append(newBytes, bytes[end:]...)
 
-				ioutil.WriteFile(outputFilePath, newBytes, os.ModePerm)
+				if err = ioutil.WriteFile(outputFilePath, newBytes, os.ModePerm); err != nil {
+					log.Fatalf("write file failed: %s\n", err.Error())
+				}
 
 				fmt.Printf("%s -> %s\n", materialName, newMaterialName)
 			} else {
@@ -268,4 +256,8 @@ func main() {
 
 		f.Write(tempData)
 	}
+}
+
+func init() {
+	log.SetFlags(log.Lshortfile | log.LstdFlags)
 }
